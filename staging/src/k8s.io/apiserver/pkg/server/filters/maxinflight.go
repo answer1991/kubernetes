@@ -121,6 +121,12 @@ func WithMaxInFlightLimit(
 			return
 		}
 
+		// Skip tracking non-resource requests (e.g., /healthz, /apis).
+		if !requestInfo.IsResourceRequest {
+			handler.ServeHTTP(w, r)
+			return
+		}
+
 		// Skip tracking long running events.
 		if longRunningRequestCheck != nil && longRunningRequestCheck(r, requestInfo) {
 			handler.ServeHTTP(w, r)
